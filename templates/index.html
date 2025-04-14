@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Crop Yield Prediction</title>
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --primary-light: #60ad5e;
+            --primary-dark: #005005;
+            --secondary: #f9fbe7;
+            --text-dark: #263238;
+            --text-light: #ffffff;
+            --border-radius: 8px;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 0;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        
+        .navbar {
+            background-color: var(--primary);
+            color: var(--text-light);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .logo-icon {
+            margin-right: 10px;
+            font-size: 1.8rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url("/api/placeholder/1200/400") center/cover no-repeat;
+            color: var(--text-light);
+            text-align: center;
+            padding: 4rem 1rem;
+        }
+        
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .main-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+        }
+        
+        .card {
+            background-color: #ffffff;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background-color: var(--primary);
+            color: var(--text-light);
+            padding: 1rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: block;
+            color: var(--text-dark);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: var(--border-radius);
+            border: 1px solid #ddd;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: var(--text-light);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .result-section {
+            padding: 1rem;
+        }
+        
+        .result {
+            background-color: var(--secondary);
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        
+        .info-card {
+            margin-bottom: 2rem;
+        }
+        
+        .dashboard-card {
+            margin-top: 1rem;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            height: auto;
+            max-height: 500px; /* Add max-height to prevent stretching */
+            overflow: hidden; /* Prevent content from exceeding the container */
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        /* Slider styles */
+        .slider-container {
+            position: relative;
+            margin: 20px 0;
+            overflow: hidden;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-height: 350px; /* Limit the height of the slider container */
+        }
+        
+        .slider {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+        
+        .slide {
+            min-width: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+            background-color: #fff;
+        }
+        
+        .slide img {
+            width: 100%;
+            height: auto;
+            max-height: 200px; /* Limit the height of slide images */
+            object-fit: cover; /* Ensure images maintain aspect ratio */
+            border-radius: 4px;
+        }
+        
+        .slide-caption {
+            text-align: center;
+            padding: 10px 0;
+            font-weight: 500;
+            color: var(--text-dark);
+            font-size: 0.9rem;
+            max-height: 60px; /* Limit height of captions */
+            overflow: hidden; /* Hide overflow text */
+            text-overflow: ellipsis; /* Add ellipsis for overflowing text */
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Limit to 2 lines */
+            -webkit-box-orient: vertical;
+        }
+        
+        .slider-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        
+        .slider-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s;
+        }
+        
+        .slider-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .slider-dots {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        
+        .dot {
+            width: 12px;
+            height: 12px;
+            background-color: #ddd;
+            border-radius: 50%;
+            margin: 0 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .dot.active {
+            background-color: var(--primary);
+        }
+
+        footer {
+            background-color: var(--primary-dark);
+            color: var(--text-light);
+            text-align: center;
+            padding: 2rem 1rem;
+            margin-top: 3rem;
+            clear: both; /* Ensure footer appears below all content */
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            
+            form {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-content">
+            <div class="logo">
+                <span class="logo-icon">🌿</span>
+                <span>AgriPredict</span>
+            </div>
+            <div class="nav-links">
+                <a href="#">Home</a>
+                <a href="#">About</a>
+                <a href="#">Services</a>
+                <a href="#">Contact</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="hero">
+        <h1>Crop Yield Prediction System</h1>
+        <p>Using advanced machine learning to optimize your agricultural productivity</p>
+    </div>
+    
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="card info-card">
+                <div class="card-header">
+                    Information
+                </div>
+                <div class="card-body">
+                    <p>Welcome to our Crop Yield Prediction tool. Enter your farm details to get accurate yield predictions and crop recommendations based on environmental factors.</p>
+                    <p>Our system uses machine learning models trained on historical agricultural data across India to provide the most accurate predictions.</p>
+                </div>
+            </div>
+            
+            <div class="card dashboard-card">
+                <div class="dashboard-header">
+                    <h3>Recent Statistics</h3>
+                </div>
+                <div class="slider-container">
+                    <div class="slider" id="statisticsSlider">
+                        <div class="slide">
+                            <img src="static\avg_crop.jpg" alt="Average Yearly Crop Production" id="slide1">
+                            <div class="slide-caption">Average Yearly Crop Production 1997-2020</div>
+                        </div>
+                        <div class="slide">
+                            <img src="static\crop_diverse.jpg" alt="Crop Diversification Trends" id="slide2">
+                            <div class="slide-caption">Crop/crop group wise trend of crop diversification using composite entropy index from 1998-99 to 2020-21</div>
+                        </div>
+                        <div class="slide">
+                            <img src="static\agri_gdp.jpg" alt="Agri-GDP/Ha of NSA and GCA" id="slide3">
+                            <div class="slide-caption">Agri-GDP/Ha of NSA and GCA (Rs Lakh/Ha) in Indian States, 2021-22</div>
+                        </div>
+                        <div class="slide">
+                            <img src="\static\crop_distribution.jpg" alt="Crop Distribution" id="slide4">
+                            <div class="slide-caption">Crop Distribution by Category</div>
+                        </div>
+                    </div>
+                    <div class="slider-controls">
+                        <button class="slider-btn prev-btn">&lt;</button>
+                        <button class="slider-btn next-btn">&gt;</button>
+                    </div>
+                    <div class="slider-dots">
+                        <span class="dot active" data-index="0"></span>
+                        <span class="dot" data-index="1"></span>
+                        <span class="dot" data-index="2"></span>
+                        <span class="dot" data-index="3"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="card">
+                <div class="card-header">
+                    Enter Farm Details
+                </div>
+                <div class="card-body">
+                    <form id="predictionForm">
+                        <div class="form-group">
+                            <label for="season">Season:</label>
+                            <select id="season" required>
+                                <option value="">--Select Season--</option>
+                                <option value="Kharif">Kharif</option>
+                                <option value="Rabi">Rabi</option>
+                                <option value="Summer">Summer</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="state">State:</label>
+                            <select id="state" required>
+                                <option value="">--Select State--</option>
+                                <option value="Andhra Pradesh">Andhra Pradesh</option>
+                                <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                                <option value="Assam">Assam</option>
+                                <option value="Bihar">Bihar</option>
+                                <option value="Chhattisgarh">Chhattisgarh</option>
+                                <option value="Goa">Goa</option>
+                                <option value="Gujarat">Gujarat</option>
+                                <option value="Haryana">Haryana</option>
+                                <option value="Himachal Pradesh">Himachal Pradesh</option>
+                                <option value="Jharkhand">Jharkhand</option>
+                                <option value="Karnataka">Karnataka</option>
+                                <option value="Kerala">Kerala</option>
+                                <option value="Madhya Pradesh">Madhya Pradesh</option>
+                                <option value="Maharashtra">Maharashtra</option>
+                                <option value="Manipur">Manipur</option>
+                                <option value="Meghalaya">Meghalaya</option>
+                                <option value="Mizoram">Mizoram</option>
+                                <option value="Nagaland">Nagaland</option>
+                                <option value="Odisha">Odisha</option>
+                                <option value="Punjab">Punjab</option>
+                                <option value="Rajasthan">Rajasthan</option>
+                                <option value="Sikkim">Sikkim</option>
+                                <option value="Tamil Nadu">Tamil Nadu</option>
+                                <option value="Telangana">Telangana</option>
+                                <option value="Tripura">Tripura</option>
+                                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                                <option value="Uttarakhand">Uttarakhand</option>
+                                <option value="West Bengal">West Bengal</option>
+                                <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
+                                <option value="Chandigarh">Chandigarh</option>
+                                <option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli and Daman and Diu</option>
+                                <option value="Delhi">Delhi</option>
+                                <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                                <option value="Ladakh">Ladakh</option>
+                                <option value="Lakshadweep">Lakshadweep</option>
+                                <option value="Puducherry">Puducherry</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="area">Area (in hectares):</label>
+                            <input type="number" id="area" placeholder="Enter Area" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="rainfall">Rainfall (in mm):</label>
+                            <input type="number" id="rainfall" placeholder="Enter Rainfall" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="fertilizer">Fertilizer (in kg):</label>
+                            <input type="number" id="fertilizer" placeholder="Enter Fertilizer" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="pesticide">Pesticide (in kg):</label>
+                            <input type="number" id="pesticide" placeholder="Enter Pesticide" required>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <button type="submit">Generate Prediction</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card result-section">
+                <div class="card-header">
+                    Prediction Results
+                </div>
+                <div class="card-body">
+                    <div class="result" id="result">
+                        Enter your farm details and click "Generate Prediction" to see results.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 AgriPredict - Crop Yield Prediction System | All Rights Reserved</p>
+        <p>Contact: info@agripredict.com | Support: +91 12345 67890</p>
+    </footer>
+
+    <script>
+        // Form submission handler
+        document.getElementById('predictionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+    
+            const season = document.getElementById('season').value;
+            const state = document.getElementById('state').value;
+            const area = parseFloat(document.getElementById('area').value);
+            const rainfall = parseFloat(document.getElementById('rainfall').value);
+            const fertilizer = parseFloat(document.getElementById('fertilizer').value);
+            const pesticide = parseFloat(document.getElementById('pesticide').value);
+    
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Processing your data...<br>Generating prediction...';
+    
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        season, state, area, rainfall, fertilizer, pesticide
+                    })
+                });
+    
+                const result = await response.json();
+    
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <strong>✅ Recommended Crop:</strong> ${result.recommended_crop}<br>
+                        <strong>🌾 Predicted Yield:</strong> ${result.predicted_yield} kg/ha<br>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<strong>⚠ Error:</strong> ${result.error}`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<strong>⚠ Error:</strong> ${error.message}`;
+            }
+        });
+
+        // Image slider functionality
+        let currentSlide = 0;
+        const slider = document.getElementById('statisticsSlider');
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.dot');
+        const totalSlides = slides.length;
+
+        // Function to update slider position
+        function updateSlider() {
+            slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+            
+            // Update dots
+            dots.forEach((dot, index) => {
+                if (index === currentSlide) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        }
+
+        // Next slide
+        document.querySelector('.next-btn').addEventListener('click', () => {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            updateSlider();
+        });
+
+        // Previous slide
+        document.querySelector('.prev-btn').addEventListener('click', () => {
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            updateSlider();
+        });
+
+        // Dot navigation
+        dots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                currentSlide = parseInt(dot.getAttribute('data-index'));
+                updateSlider();
+            });
+        });
+
+        // Auto-slider (optional)
+        setInterval(() => {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            updateSlider();
+        }, 5000);
+
+        // In a real implementation, you would use actual image URLs
+        // For this example, we're using placeholder images
+    </script>
+</body>
+</html>

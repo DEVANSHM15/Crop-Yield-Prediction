@@ -6,12 +6,13 @@ Overview
 This project provides a machine learning-based solution for crop recommendation and yield prediction. It consists of:
 A Flask web application (app.py) that serves predictions via API
 A Jupyter notebook (SaveModels.ipynb) for training and saving models
+Also we have used multiple set of training models
 
 Pre-trained models and preprocessing objects
 File Descriptions
 Core Files
 app.py: Flask application that provides:
-Web interface for user input
+Web interface for user input(Using HTML&CSS)
 API endpoint (/predict) for crop recommendations and yield predictions
 Integration with pre-trained models
 
